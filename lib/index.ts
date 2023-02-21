@@ -85,18 +85,18 @@ export function transform(
   stream: NodeJS.ReadableStream,
   options: TransformOptions,
 ): NodeJS.ReadableStream {
+  const from = getContentType(options.from);
+  const to = getContentType(options.to);
+
   // If transformations are not forced,
   // and we are transforming to a content-type that is the same as, or a
   // subset of the source, then just return the original stream
   if (!options.forceTransform) {
-    const from = getContentType(options.from);
-    const to = getContentType(options.to);
-
     if (from === to || subsets[from]?.has(to)) return stream;
   }
 
   return serialize.serialize(
-    parse.parse(stream, { baseIRI: options.baseIRI, ...options.from }),
-    options.to,
+    parse.parse(stream, { baseIRI: options.baseIRI, contentType: from }),
+    { contentType: to },
   );
 }
