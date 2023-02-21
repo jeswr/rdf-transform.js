@@ -1,5 +1,5 @@
-import parse from 'rdf-parse';
-import serialize, { type SerializeOptions } from 'rdf-serialize';
+import parse, { RdfParser } from 'rdf-parse';
+import serialize, { type SerializeOptions, RdfSerializer } from 'rdf-serialize';
 
 export interface TransformOptions {
   baseIRI?: string | undefined;
@@ -12,6 +12,8 @@ export interface TransformOptions {
 }
 
 const CONTENT_MAPPINGS: { [id: string]: string } = {
+  ...RdfParser.CONTENT_MAPPINGS,
+  ...RdfSerializer.CONTENT_MAPPINGS,
   ttl: 'text/turtle',
   turtle: 'text/turtle',
   shaclc: 'text/shaclc',
