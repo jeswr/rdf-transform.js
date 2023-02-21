@@ -1,5 +1,5 @@
-import parse from 'rdf-parse';
-import serialize, { type SerializeOptions } from 'rdf-serialize';
+import parse, { RdfParser } from 'rdf-parse';
+import serialize, { type SerializeOptions, RdfSerializer } from 'rdf-serialize';
 
 export interface TransformOptions {
   baseIRI?: string | undefined;
@@ -12,6 +12,8 @@ export interface TransformOptions {
 }
 
 const CONTENT_MAPPINGS: { [id: string]: string } = {
+  ...RdfParser.CONTENT_MAPPINGS,
+  ...RdfSerializer.CONTENT_MAPPINGS,
   ttl: 'text/turtle',
   turtle: 'text/turtle',
   shaclc: 'text/shaclc',
@@ -85,18 +87,18 @@ export function transform(
   stream: NodeJS.ReadableStream,
   options: TransformOptions,
 ): NodeJS.ReadableStream {
+  const from = getContentType(options.from);
+  const to = getContentType(options.to);
+
   // If transformations are not forced,
   // and we are transforming to a content-type that is the same as, or a
   // subset of the source, then just return the original stream
   if (!options.forceTransform) {
-    const from = getContentType(options.from);
-    const to = getContentType(options.to);
-
     if (from === to || subsets[from]?.has(to)) return stream;
   }
 
   return serialize.serialize(
-    parse.parse(stream, { baseIRI: options.baseIRI, ...options.from }),
-    options.to,
+    parse.parse(stream, { baseIRI: options.baseIRI, contentType: from }),
+    { contentType: to },
   );
 }
