@@ -14,6 +14,10 @@ export interface TransformOptions {
 const CONTENT_MAPPINGS: { [id: string]: string } = {
   ttl: 'text/turtle',
   turtle: 'text/turtle',
+  shaclc: 'text/shaclc',
+  shc: 'text/shaclc',
+  shaclce: 'text/shaclc-ext',
+  shce: 'text/shaclc-ext',
   nt: 'application/n-triples',
   ntriples: 'application/n-triples',
   nq: 'application/n-quads',
@@ -22,13 +26,16 @@ const CONTENT_MAPPINGS: { [id: string]: string } = {
   rdfxml: 'application/rdf+xml',
   owl: 'application/rdf+xml',
   n3: 'text/n3',
-  shc: 'text/shaclc',
-  shaclc: 'text/shaclc',
-  shce: 'text/shaclc-ext',
-  shaclce: 'text/shaclc-ext',
   trig: 'application/trig',
   jsonld: 'application/ld+json',
-  json: 'application/ld+json',
+  json: 'application/json',
+  html: 'text/html',
+  htm: 'text/html',
+  xhtml: 'application/xhtml+xml',
+  xht: 'application/xhtml+xml',
+  xml: 'application/xml',
+  svg: 'image/svg+xml',
+  svgz: 'image/svg+xml',
 };
 
 const subsets: Record<string, Set<string> | undefined> = {

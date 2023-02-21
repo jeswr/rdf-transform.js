@@ -52,4 +52,21 @@ describe('transform tests', () => {
       ),
     )).toEqual('<http://example.org/a> <http://example.org/b> <http://example.org/c>.\n');
   });
+
+  it('should correctly transform between html and turtle', async () => {
+    expect(await stringifyStream(
+      transform(
+        streamifyString(`
+        <!DOCTYPE html>
+          <html lang="en">
+            <div id="me" typeof="foaf:Person" resource="https://www.rubensworks.net/#me">
+          </html>
+        `),
+        {
+          from: { contentType: 'text/html' },
+          to: { contentType: 'text/turtle' },
+        },
+      ),
+    )).toEqual('<https://www.rubensworks.net/#me> a <http://xmlns.com/foaf/0.1/Person>.\n');
+  });
 });
