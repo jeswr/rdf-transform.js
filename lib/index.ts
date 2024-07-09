@@ -1,5 +1,5 @@
-import parse, { RdfParser } from 'rdf-parse';
-import serialize, { type SerializeOptions, RdfSerializer } from 'rdf-serialize';
+import { RdfParser, rdfParser as parse } from 'rdf-parse';
+import { type SerializeOptions, RdfSerializer, rdfSerializer as serialize } from 'rdf-serialize';
 
 export interface TransformOptions {
   baseIRI?: string | undefined;

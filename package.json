@@ -98,7 +98,7 @@
     "access": "public"
   },
   "dependencies": {
-    "rdf-parse": "^2.3.0",
-    "rdf-serialize": "^2.2.1"
+    "rdf-parse": "^3.0.0",
+    "rdf-serialize": "^3.0.0"
   }
 }
