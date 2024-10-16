@@ -99,6 +99,6 @@
   },
   "dependencies": {
     "rdf-parse": "^4.0.0",
-    "rdf-serialize": "^3.0.0"
+    "rdf-serialize": "^4.0.1"
   }
 }
