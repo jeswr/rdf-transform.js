@@ -58,10 +58,16 @@ export function getContentTypeFromExtension(path: string): string {
   return '';
 }
 
-export function getContentType(options: SerializeOptions) {
-  return 'contentType' in options
-    ? options.contentType
-    : getContentTypeFromExtension(options.path);
+export function getContentType(options: SerializeOptions): string {
+  if ('contentType' in options && typeof options.contentType === 'string') {
+    return options.contentType;
+  }
+
+  if ('path' in options && typeof options.path === 'string') {
+    return getContentTypeFromExtension(options.path);
+  }
+
+  throw new Error('No content type found');
 }
 
 // Get the content types that we are able to transform *to* from a given content-type source
