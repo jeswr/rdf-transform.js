@@ -69,4 +69,65 @@ describe('transform tests', () => {
       ),
     )).toEqual('<https://www.rubensworks.net/#me> a <http://xmlns.com/foaf/0.1/Person>.\n');
   });
+
+  describe('pretty turtle tests', () => {
+    it('should pretty print turtle output when pretty option is enabled', async () => {
+      const input = '[{"@id": "http://example.org/a", "http://example.org/b": [{"@id": "http://example.org/c"}]}]';
+      const output = await stringifyStream(
+        transform(
+          streamifyString(input),
+          {
+            from: { contentType: 'application/ld+json' },
+            to: { contentType: 'text/turtle' },
+            baseIRI: 'http://example.org/',
+            pretty: true,
+          },
+        ),
+      );
+      console.log(output);
+      // The pretty turtle output should be more readable than the default output
+      expect(output).toContain('\n');
+      expect(output).toContain('<http://example.org/a>');
+      expect(output).toContain('<http://example.org/b>');
+      expect(output).toContain('<http://example.org/c>');
+    });
+
+    it('should pretty print n3 output when pretty option is enabled', async () => {
+      const input = '[{"@id": "http://example.org/a", "http://example.org/b": [{"@id": "http://example.org/c"}]}]';
+      const output = await stringifyStream(
+        transform(
+          streamifyString(input),
+          {
+            from: { contentType: 'application/ld+json' },
+            to: { contentType: 'text/n3' },
+            baseIRI: 'http://example.org/',
+            pretty: true,
+          },
+        ),
+      );
+
+      // The pretty n3 output should be more readable than the default output
+      expect(output).toContain('\n');
+      expect(output).toContain('<http://example.org/a>');
+      expect(output).toContain('<http://example.org/b>');
+      expect(output).toContain('<http://example.org/c>');
+    });
+
+    it('should ignore pretty option for non-turtle/n3 output', async () => {
+      const input = '[{"@id": "http://example.org/a", "http://example.org/b": [{"@id": "http://example.org/c"}]}]';
+      const output = await stringifyStream(
+        transform(
+          streamifyString(input),
+          {
+            from: { contentType: 'application/ld+json' },
+            to: { contentType: 'application/ld+json' },
+            baseIRI: 'http://example.org/',
+            pretty: true,
+          },
+        ),
+      );
+      // The output should be the same as without pretty option
+      expect(output).toEqual(`${JSON.stringify(JSON.parse(input), null, 2)}\n`);
+    });
+  });
 });

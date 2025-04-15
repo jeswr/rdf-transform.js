@@ -1,5 +1,9 @@
 import { RdfParser, rdfParser as parse } from 'rdf-parse';
 import { type SerializeOptions, RdfSerializer, rdfSerializer as serialize } from 'rdf-serialize';
+import { write } from '@jeswr/pretty-turtle';
+import { arrayifyStream } from 'arrayify-stream';
+import { Readable } from 'readable-stream';
+import { rdfParser } from 'rdf-parse';
 
 export interface TransformOptions {
   baseIRI?: string | undefined;
@@ -9,6 +13,7 @@ export interface TransformOptions {
   forceTransform?: boolean | undefined;
   from: SerializeOptions;
   to: SerializeOptions;
+  pretty?: boolean | undefined;
 }
 
 const CONTENT_MAPPINGS: { [id: string]: string } = {
@@ -89,6 +94,28 @@ export async function allowedDestinations(
   ];
 }
 
+async function pretty(stream: NodeJS.ReadableStream, options: TransformOptions, to: string) {
+  const quads = rdfParser.parse(stream, { 
+    baseIRI: options.baseIRI,
+    contentType: getContentType(options.from)
+  });
+  const arr = await arrayifyStream(quads);
+  return write(arr, { format: to });
+}
+
+function streamFromPromise(promise: Promise<string>): NodeJS.ReadableStream {
+  const stream = new Readable();
+  stream._read = () => {};
+  promise.then((result) => {
+    stream.push(result);
+    stream.push(null);
+  }).catch((err) => {
+    stream.emit('error', err);
+    stream.push(null);
+  });
+  return stream;
+}
+
 export function transform(
   stream: NodeJS.ReadableStream,
   options: TransformOptions,
@@ -99,8 +126,12 @@ export function transform(
   // If transformations are not forced,
   // and we are transforming to a content-type that is the same as, or a
   // subset of the source, then just return the original stream
-  if (!options.forceTransform) {
+  if (!options.forceTransform && !options.pretty) {
     if (from === to || subsets[from]?.has(to)) return stream;
+  }
+
+  if (options.pretty && (to === 'text/turtle' || to === 'text/n3')) {
+    return streamFromPromise(pretty(stream, options, to));
   }
 
   return serialize.serialize(
