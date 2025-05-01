@@ -1,9 +1,8 @@
-import { RdfParser, rdfParser as parse } from 'rdf-parse';
+import { RdfParser, rdfParser as parse, rdfParser } from 'rdf-parse';
 import { type SerializeOptions, RdfSerializer, rdfSerializer as serialize } from 'rdf-serialize';
 import { write } from '@jeswr/pretty-turtle';
 import { arrayifyStream } from 'arrayify-stream';
 import { Readable } from 'readable-stream';
-import { rdfParser } from 'rdf-parse';
 
 export interface TransformOptions {
   baseIRI?: string | undefined;
@@ -95,9 +94,9 @@ export async function allowedDestinations(
 }
 
 async function pretty(stream: NodeJS.ReadableStream, options: TransformOptions, to: string) {
-  const quads = rdfParser.parse(stream, { 
+  const quads = rdfParser.parse(stream, {
     baseIRI: options.baseIRI,
-    contentType: getContentType(options.from)
+    contentType: getContentType(options.from),
   });
   const arr = await arrayifyStream(quads);
   return write(arr, { format: to });
@@ -105,7 +104,8 @@ async function pretty(stream: NodeJS.ReadableStream, options: TransformOptions, 
 
 function streamFromPromise(promise: Promise<string>): NodeJS.ReadableStream {
   const stream = new Readable();
-  stream._read = () => {};
+  // eslint-disable-next-line no-underscore-dangle
+  stream._read = () => { /* no-op */ };
   promise.then((result) => {
     stream.push(result);
     stream.push(null);
