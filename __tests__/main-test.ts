@@ -70,6 +70,25 @@ describe('transform tests', () => {
     )).toEqual('<https://www.rubensworks.net/#me> a <http://xmlns.com/foaf/0.1/Person>.\n');
   });
 
+  it('should correctly transform between html and turtle and add prefixes in pretty mode', async () => {
+    expect(await stringifyStream(
+      transform(
+        streamifyString(`
+        PREFIX ex: <http://example.org/test#>
+
+        shape ex:TestShape -> ex:TestClass1 {
+          ex:path ex:TestProperty [1..*] .
+        }
+        `),
+        {
+          from: { contentType: 'text/shaclc' },
+          to: { contentType: 'text/turtle' },
+          pretty: true,
+        },
+      ),
+    )).toEqual('<https://www.rubensworks.net/#me> a foaf:Person .\n');
+  });
+
   describe('pretty turtle tests', () => {
     it('should pretty print turtle output when pretty option is enabled', async () => {
       const input = '[{"@id": "http://example.org/a", "http://example.org/b": [{"@id": "http://example.org/c"}]}]';
