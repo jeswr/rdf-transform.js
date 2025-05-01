@@ -85,13 +85,13 @@ describe('transform tests', () => {
           pretty: true,
         },
       ),
-    )).toEqual(`@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix sh: <http://www.w3.org/ns/shacl#> .
+    )).toEqual(`@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix ex: <http://example.org/> .
 
 ex:TestShape a sh:NodeShape .
 
-ex: a <http://www.w3.org/2002/07/owl#Ontology> .
+ex: a owl:Ontology .
 `);
   });
 
