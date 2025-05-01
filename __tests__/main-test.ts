@@ -74,11 +74,10 @@ describe('transform tests', () => {
     expect(await stringifyStream(
       transform(
         streamifyString(`
-        PREFIX ex: <http://example.org/test#>
+        BASE <http://example.org/>
+        PREFIX ex: <http://example.org/>
 
-        shape ex:TestShape -> ex:TestClass1 {
-          ex:path ex:TestProperty [1..*] .
-        }
+        shape ex:TestShape {}
         `),
         {
           from: { contentType: 'text/shaclc' },
@@ -86,7 +85,14 @@ describe('transform tests', () => {
           pretty: true,
         },
       ),
-    )).toEqual('<https://www.rubensworks.net/#me> a foaf:Person .\n');
+    )).toEqual(`@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/> .
+
+ex:TestShape a sh:NodeShape .
+
+ex: a <http://www.w3.org/2002/07/owl#Ontology> .
+`);
   });
 
   describe('pretty turtle tests', () => {
@@ -103,7 +109,6 @@ describe('transform tests', () => {
           },
         ),
       );
-      console.log(output);
       // The pretty turtle output should be more readable than the default output
       expect(output).toContain('\n');
       expect(output).toContain('<http://example.org/a>');

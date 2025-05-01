@@ -96,16 +96,14 @@ export async function allowedDestinations(
 async function pretty(stream: NodeJS.ReadableStream, options: TransformOptions, to: string) {
   const prefixes: Record<string, string> = {};
 
-  stream.on('prefix', (prefix) => {
-    prefixes[prefix.name] = prefix.value;
-  });
-
   const quads = rdfParser.parse(stream, {
     baseIRI: options.baseIRI,
     contentType: getContentType(options.from),
   });
+  quads.on('prefix', (prefix, iri) => {
+    prefixes[prefix] = typeof iri === 'string' ? iri : iri.value;
+  });
   const arr = await arrayifyStream(quads);
-
   return write(arr, { format: to, prefixes });
 }
 
