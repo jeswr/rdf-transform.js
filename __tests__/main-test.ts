@@ -69,4 +69,89 @@ describe('transform tests', () => {
       ),
     )).toEqual('<https://www.rubensworks.net/#me> a <http://xmlns.com/foaf/0.1/Person>.\n');
   });
+
+  it('should correctly transform between html and turtle and add prefixes in pretty mode', async () => {
+    expect(await stringifyStream(
+      transform(
+        streamifyString(`
+        BASE <http://example.org/>
+        PREFIX ex: <http://example.org/>
+
+        shape ex:TestShape {}
+        `),
+        {
+          from: { contentType: 'text/shaclc' },
+          to: { contentType: 'text/turtle' },
+          pretty: true,
+        },
+      ),
+    )).toEqual(`@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ex: <http://example.org/> .
+
+ex:TestShape a sh:NodeShape .
+
+ex: a owl:Ontology .
+`);
+  });
+
+  describe('pretty turtle tests', () => {
+    it('should pretty print turtle output when pretty option is enabled', async () => {
+      const input = '[{"@id": "http://example.org/a", "http://example.org/b": [{"@id": "http://example.org/c"}]}]';
+      const output = await stringifyStream(
+        transform(
+          streamifyString(input),
+          {
+            from: { contentType: 'application/ld+json' },
+            to: { contentType: 'text/turtle' },
+            baseIRI: 'http://example.org/',
+            pretty: true,
+          },
+        ),
+      );
+      // The pretty turtle output should be more readable than the default output
+      expect(output).toContain('\n');
+      expect(output).toContain('<http://example.org/a>');
+      expect(output).toContain('<http://example.org/b>');
+      expect(output).toContain('<http://example.org/c>');
+    });
+
+    it('should pretty print n3 output when pretty option is enabled', async () => {
+      const input = '[{"@id": "http://example.org/a", "http://example.org/b": [{"@id": "http://example.org/c"}]}]';
+      const output = await stringifyStream(
+        transform(
+          streamifyString(input),
+          {
+            from: { contentType: 'application/ld+json' },
+            to: { contentType: 'text/n3' },
+            baseIRI: 'http://example.org/',
+            pretty: true,
+          },
+        ),
+      );
+
+      // The pretty n3 output should be more readable than the default output
+      expect(output).toContain('\n');
+      expect(output).toContain('<http://example.org/a>');
+      expect(output).toContain('<http://example.org/b>');
+      expect(output).toContain('<http://example.org/c>');
+    });
+
+    it('should ignore pretty option for non-turtle/n3 output', async () => {
+      const input = '[{"@id": "http://example.org/a", "http://example.org/b": [{"@id": "http://example.org/c"}]}]';
+      const output = await stringifyStream(
+        transform(
+          streamifyString(input),
+          {
+            from: { contentType: 'application/ld+json' },
+            to: { contentType: 'application/ld+json' },
+            baseIRI: 'http://example.org/',
+            pretty: true,
+          },
+        ),
+      );
+      // The output should be the same as without pretty option
+      expect(output).toEqual(`${JSON.stringify(JSON.parse(input), null, 2)}\n`);
+    });
+  });
 });
