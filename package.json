@@ -100,7 +100,7 @@
   "dependencies": {
     "@jeswr/pretty-turtle": "^1.5.0",
     "arrayify-stream": "^3.0.0",
-    "rdf-parse": "^4.0.0",
+    "rdf-parse": "^5.0.0",
     "rdf-serialize": "^5.0.0",
     "readable-stream": "^4.7.0"
   }
